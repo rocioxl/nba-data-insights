@@ -38,3 +38,13 @@ In a first approach, our ML models will be consumed through API Rest or through 
 └─ app                <- Entrypoint app
 ```
 
+## Database
+
+1. Copy the  `database.conf` file in `src/mysql_db`
+2. Create a mysql container
+
+    ```raw  text
+    $ cd src/mysql_db
+    $ docker-compose up --build -d
+
+    ```
