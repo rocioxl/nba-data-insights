@@ -131,6 +131,7 @@ dmypy.json
 # folders
 data/
 models/
+.vscode/
 
 # ignore configuration sfiles
 *.conf
