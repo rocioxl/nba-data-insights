@@ -2,6 +2,14 @@ import flask_sqlalchemy
 
 db = flask_sqlalchemy.SQLAlchemy()
 
+players_teams = db.Table(
+    "players_teams",
+    db.Column(
+        "player_id", db.String(255), db.ForeignKey("player.id"), primary_key=True
+    ),
+    db.Column("team_id", db.String(255), db.ForeignKey("team.id"), primary_key=True),
+)
+
 
 class League(db.Model):
     __tablename__ = "league"
@@ -18,16 +26,6 @@ class League(db.Model):
         return {
             "id": self.id,
         }
-
-    players_teams = db.Table(
-        "players_teams",
-        db.Column(
-            "player_id", db.String(255), db.ForeignKey("player.id"), primary_key=True
-        ),
-        db.Column(
-            "team_id", db.String(255), db.ForeignKey("team.id"), primary_key=True
-        ),
-    )
 
 
 class Team(db.Model):
@@ -48,9 +46,12 @@ class Team(db.Model):
     dleagueaffiliation = db.Column(db.String(100))
 
     league_id = db.Column(db.Integer, db.ForeignKey("league.id"))
-    players = db.relationship('Player', secondary=players_teams, lazy=True',
-        backref=db.backref('teams', lazy=True))
-
+    players = db.relationship(
+        "Player",
+        secondary=players_teams,
+        lazy=True,
+        backref=db.backref("teams", lazy=True),
+    )
 
     away_games = db.relationship(
         "Game", backref="away_team", lazy=True, foreign_keys="Game.home_team_id"
@@ -146,9 +147,15 @@ class GameDetail(db.Model):
     pts = db.Column(db.Integer)
     plus_minus = db.Column(db.Integer)
 
-    game_id = db.Column(db.Integer, db.ForeignKey("game.id"), nullable=False, primary_key=True)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False, primary_key=True)
-    player_id = db.Column(db.Integer, db.ForeignKey("player.id"), nullable=False, primary_key=True)
+    game_id = db.Column(
+        db.Integer, db.ForeignKey("game.id"), nullable=False, primary_key=True
+    )
+    team_id = db.Column(
+        db.Integer, db.ForeignKey("team.id"), nullable=False, primary_key=True
+    )
+    player_id = db.Column(
+        db.Integer, db.ForeignKey("player.id"), nullable=False, primary_key=True
+    )
 
     def __repr__(self):
         return f"<GameDetail {self.id}>"
