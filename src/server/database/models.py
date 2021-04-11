@@ -14,11 +14,26 @@ class League(db.Model):
     def __repr__(self):
         return f"<League {self.id}>"
 
+    def to_json(self, expand=False):
+        return {
+            "id": self.id,
+        }
+
+    players_teams = db.Table(
+        "players_teams",
+        db.Column(
+            "player_id", db.String(255), db.ForeignKey("player.id"), primary_key=True
+        ),
+        db.Column(
+            "team_id", db.String(255), db.ForeignKey("team.id"), primary_key=True
+        ),
+    )
+
 
 class Team(db.Model):
     __tablename__ = "team"
 
-    team_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(255), primary_key=True)
     min_year = db.Column(db.Integer)
     max_year = db.Column(db.Integer)
     abbreviation = db.Column(db.String(10))
@@ -33,7 +48,10 @@ class Team(db.Model):
     dleagueaffiliation = db.Column(db.String(100))
 
     league_id = db.Column(db.Integer, db.ForeignKey("league.id"))
-    players = db.relationship("Player", backref="team", lazy=True)
+    players = db.relationship('Player', secondary=players_teams, lazy=True',
+        backref=db.backref('teams', lazy=True))
+
+
     away_games = db.relationship(
         "Game", backref="away_team", lazy=True, foreign_keys="Game.home_team_id"
     )
@@ -43,44 +61,34 @@ class Team(db.Model):
     game_details = db.relationship("GameDetail", backref="team", lazy=True)
 
     def __repr__(self):
-        return f"<Team {self.team_id}>"
+        return f"<Team {self.id}>"
 
     def to_json(self):
         return {
-            "team_id": self.team_id,
-            "min_year": self.min_year,
-            "max_year": self.max_year,
-            "abbreviation": self.abbreviation,
-            "nickname": self.nickname,
-            "yearfounded": self.yearfounded,
-            "city": self.city,
-            "arena": self.arena,
-            "arenacapacity": self.arenacapacity,
-            "owner": self.owner,
-            "generalmanager": self.generalmanager,
-            "headcoach": self.headcoach,
-            "dleagueaffiliation": self.dleagueaffiliation,
+            "id": self.id,
         }
 
 
 class Player(db.Model):
     __tablename__ = "player"
 
-    player_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(255), primary_key=True)
     player_name = db.Column(db.String(100))
     season = db.Column(db.Integer)
 
-    team_id = db.Column(db.Integer, db.ForeignKey("team.team_id"), nullable=False)
     game_details = db.relationship("GameDetail", backref="player", lazy=True)
 
     def __repr__(self):
-        return f"<Player {self.player_id}>"
+        return f"<Player {self.id}>"
+
+    def to_json(self):
+        return {"id": self.id}
 
 
 class Game(db.Model):
     __tablename__ = "game"
 
-    game_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(255), primary_key=True)
     game_date_est = db.Column(db.DateTime)
     game_status_text = db.Column(db.String(50))
     season = db.Column(db.Integer)
@@ -98,18 +106,20 @@ class Game(db.Model):
     reb_away = db.Column(db.Integer)
     home_team_wins = db.Column(db.Integer)
 
-    home_team_id = db.Column(db.Integer, db.ForeignKey("team.team_id"), nullable=False)
-    away_team_id = db.Column(db.Integer, db.ForeignKey("team.team_id"), nullable=False)
+    home_team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
+    away_team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
     game_details = db.relationship("GameDetail", backref="game", lazy=True)
 
     def __repr__(self):
-        return f"<Game {self.game_id}>"
+        return f"<Game {self.id}>"
+
+    def to_json(self):
+        return {"id": self.id}
 
 
 class GameDetail(db.Model):
     __tablename__ = "game_detail"
 
-    id = db.Column(db.Integer, primary_key=True)
     team_abbreviation = db.Column(db.String(10))
     team_city = db.Column(db.String(50))
     player_name = db.Column(db.String(100))
@@ -136,18 +146,20 @@ class GameDetail(db.Model):
     pts = db.Column(db.Integer)
     plus_minus = db.Column(db.Integer)
 
-    game_id = db.Column(db.Integer, db.ForeignKey("game.game_id"), nullable=False)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.team_id"), nullable=False)
-    player_id = db.Column(db.Integer, db.ForeignKey("player.player_id"), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("game.id"), nullable=False, primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False, primary_key=True)
+    player_id = db.Column(db.Integer, db.ForeignKey("player.id"), nullable=False, primary_key=True)
 
     def __repr__(self):
         return f"<GameDetail {self.id}>"
+
+    def to_json(self):
+        return {"id": self.id}
 
 
 class Ranking(db.Model):
     __tablename__ = "ranking"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement="auto")
     standingsdate = db.Column(db.DateTime)
     conference = db.Column(db.String(10))
     team = db.Column(db.String(100))
@@ -159,10 +171,12 @@ class Ranking(db.Model):
     road_record = db.Column(db.String(10))
     returntoplay = db.Column(db.Integer)
 
-    team_id = db.Column(db.Integer, db.ForeignKey("team.team_id"))
-    league_id = db.Column(db.Integer, db.ForeignKey("league.id"))
-    season_id = db.Column(db.Integer)
+    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), primary_key=True)
+    league_id = db.Column(db.Integer, db.ForeignKey("league.id"), primary_key=True)
+    season_id = db.Column(db.Integer, primary_key=True)
 
     def __repr__(self):
         return f"<Ranking {self.id}>"
 
+    def to_json(self):
+        return {"id": self.id}
