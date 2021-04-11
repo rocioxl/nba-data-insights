@@ -40,11 +40,17 @@ In a first approach, our ML models will be consumed through API Rest or through 
 
 ## Database
 
-1. Copy the  `database.conf` file in `src/mysql_db`
+1. Copy the  `database.conf` file to `src/mysql_db` folder
 2. Create a mysql container
 
-    ```raw  text
-    $ cd src/mysql_db
-    $ docker-compose up --build -d
+    ```
+    $ docker-compose --file src/mysql_db/docker-compose.yml up  --build -d 
+    ```
 
+## Server
+
+1. Run flask server application
+    ```
+    $ export FLASK_APP=src/server/server.py
+    $ flask run
     ```
