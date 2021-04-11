@@ -1,20 +1,22 @@
 import flask_sqlalchemy
+import numpy as np
 
 db = flask_sqlalchemy.SQLAlchemy()
 
-players_teams = db.Table(
-    "players_teams",
-    db.Column(
-        "player_id", db.String(255), db.ForeignKey("player.id"), primary_key=True
-    ),
-    db.Column("team_id", db.String(255), db.ForeignKey("team.id"), primary_key=True),
-)
+
+class PlayersTeams(db.Model):
+    __tablename__ = "players_teams"
+
+    player_id = db.Column(db.String(20), db.ForeignKey("player.id"), primary_key=True)
+    team_id = db.Column(db.String(20), db.ForeignKey("team.id"), primary_key=True)
+    season = db.Column(db.Integer, primary_key=True)
+
 
 
 class League(db.Model):
     __tablename__ = "league"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(20), primary_key=True)
 
     teams = db.relationship("Team")
     rankings = db.relationship("Ranking")
@@ -31,7 +33,7 @@ class League(db.Model):
 class Team(db.Model):
     __tablename__ = "team"
 
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.String(20), primary_key=True)
     min_year = db.Column(db.Integer)
     max_year = db.Column(db.Integer)
     abbreviation = db.Column(db.String(10))
@@ -45,19 +47,15 @@ class Team(db.Model):
     headcoach = db.Column(db.String(100))
     dleagueaffiliation = db.Column(db.String(100))
 
-    league_id = db.Column(db.Integer, db.ForeignKey("league.id"))
+    league_id = db.Column(db.String(20), db.ForeignKey("league.id"))
     players = db.relationship(
-        "Player",
-        secondary=players_teams,
-        lazy=True,
-        backref=db.backref("teams", lazy=True),
-    )
-
-    away_games = db.relationship(
-        "Game", backref="away_team", lazy=True, foreign_keys="Game.home_team_id"
+        "Player", secondary="players_teams", back_populates="teams"
     )
     home_games = db.relationship(
-        "Game", backref="home_team", lazy=True, foreign_keys="Game.away_team_id"
+        "Game", foreign_keys="Game.home_team_id", backref="home_team", lazy="dynamic"
+    )
+    away_games = db.relationship(
+        "Game", foreign_keys="Game.away_team_id", backref="away_team", lazy="dynamic"
     )
     game_details = db.relationship("GameDetail", backref="team", lazy=True)
 
@@ -69,15 +67,19 @@ class Team(db.Model):
             "id": self.id,
         }
 
+    @property
+    def games(self):
+        return self.home_games.union(self.away_games)
+
 
 class Player(db.Model):
     __tablename__ = "player"
 
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.String(20), primary_key=True)
     player_name = db.Column(db.String(100))
-    season = db.Column(db.Integer)
 
     game_details = db.relationship("GameDetail", backref="player", lazy=True)
+    teams = db.relationship("Team", secondary="players_teams", back_populates="players")
 
     def __repr__(self):
         return f"<Player {self.id}>"
@@ -89,7 +91,7 @@ class Player(db.Model):
 class Game(db.Model):
     __tablename__ = "game"
 
-    id = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.String(20), primary_key=True)
     game_date_est = db.Column(db.DateTime)
     game_status_text = db.Column(db.String(50))
     season = db.Column(db.Integer)
@@ -107,8 +109,8 @@ class Game(db.Model):
     reb_away = db.Column(db.Integer)
     home_team_wins = db.Column(db.Integer)
 
-    home_team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
-    away_team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=False)
+    home_team_id = db.Column(db.String(20), db.ForeignKey("team.id"))
+    away_team_id = db.Column(db.String(20), db.ForeignKey("team.id"))
     game_details = db.relationship("GameDetail", backref="game", lazy=True)
 
     def __repr__(self):
@@ -126,7 +128,7 @@ class GameDetail(db.Model):
     player_name = db.Column(db.String(100))
     start_position = db.Column(db.String(5))
     comment = db.Column(db.String(500))
-    min = db.Column(db.DateTime)
+    min = db.Column(db.String(50))
     fgm = db.Column(db.Integer)
     fga = db.Column(db.Integer)
     fg_pct = db.Column(db.Float)
@@ -147,15 +149,9 @@ class GameDetail(db.Model):
     pts = db.Column(db.Integer)
     plus_minus = db.Column(db.Integer)
 
-    game_id = db.Column(
-        db.Integer, db.ForeignKey("game.id"), nullable=False, primary_key=True
-    )
-    team_id = db.Column(
-        db.Integer, db.ForeignKey("team.id"), nullable=False, primary_key=True
-    )
-    player_id = db.Column(
-        db.Integer, db.ForeignKey("player.id"), nullable=False, primary_key=True
-    )
+    game_id = db.Column(db.String(20), db.ForeignKey("game.id"), primary_key=True)
+    team_id = db.Column(db.String(20), db.ForeignKey("team.id"), primary_key=True)
+    player_id = db.Column(db.String(20), db.ForeignKey("player.id"), primary_key=True)
 
     def __repr__(self):
         return f"<GameDetail {self.id}>"
@@ -178,9 +174,10 @@ class Ranking(db.Model):
     road_record = db.Column(db.String(10))
     returntoplay = db.Column(db.Integer)
 
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), primary_key=True)
-    league_id = db.Column(db.Integer, db.ForeignKey("league.id"), primary_key=True)
-    season_id = db.Column(db.Integer, primary_key=True)
+    team_id = db.Column(db.String(20), db.ForeignKey("team.id"), primary_key=True)
+    league_id = db.Column(db.String(20), db.ForeignKey("league.id"), primary_key=True)
+    season_id = db.Column(db.String(20), primary_key=True)
+
 
     def __repr__(self):
         return f"<Ranking {self.id}>"
