@@ -31,8 +31,10 @@ def fetch_all(entity):
 
 
 @app.route("/add/<entity>", methods=["POST"])
-def insert_player(entity):
+def add(entity):
     data = request.get_json()
+    if not data:
+        json.dumps("None is not valid as input"), 400
     repository.insert(ENTITY_MAPPER[entity], **data)
     return json.dumps("Added"), 200
 
