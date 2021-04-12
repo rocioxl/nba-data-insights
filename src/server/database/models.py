@@ -60,7 +60,7 @@ class Team(db.Model):
     headcoach = db.Column(db.String(100))
     dleagueaffiliation = db.Column(db.String(100))
 
-    league_id = db.Column(db.String(20), db.ForeignKey("league.id"))
+    league_id = db.Column(db.String(20), db.ForeignKey("league.id"), default="0")
     players = db.relationship(
         "Player", secondary="players_teams", back_populates="teams"
     )
@@ -272,7 +272,11 @@ class GameDetail(db.Model):
         return f"<GameDetail {self.id}>"
 
     def to_json(self):
-        return {"id": self.id}
+        return {
+            "game_id":self.game_id,
+            "team_id":self.team_id,
+            "player_id":self.player_id,
+        }
 
     @staticmethod
     def mapper(csv_data):
@@ -337,15 +341,20 @@ class Ranking(db.Model):
     returntoplay = db.Column(db.Integer)
 
     team_id = db.Column(db.String(20), db.ForeignKey("team.id"), primary_key=True)
-    league_id = db.Column(db.String(20), db.ForeignKey("league.id"), primary_key=True)
+    league_id = db.Column(
+        db.String(20), db.ForeignKey("league.id"), primary_key=True, default="0"
+    )
     season_id = db.Column(db.String(20), primary_key=True)
-
 
     def __repr__(self):
         return f"<Ranking {self.id}>"
 
     def to_json(self):
-        return {"id": self.id}
+        return {
+            "team_id": self.team_id,
+            "league_id": self.league_id,
+            "season_id": self.season_id,
+        }
 
     @staticmethod
     def mapper(csv_data):
