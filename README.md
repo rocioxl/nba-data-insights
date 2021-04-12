@@ -30,12 +30,13 @@
 In a first approach, our ML models will be consumed through API Rest or through CLI. Based on this idea, the file structure is as follows
 
 ```raw  text
-├─ README.md          <- The top-level README for this project.
 ├─ requirements.txt   <- Python library dependency
+├─ README.md          <- The top-level README for this project.
+├─ makefile           <- Shortcuts
 ├─ src                <- Implemented python modules
 ├─ models             <- AI generated models
-├─ data               <- Used data
-└─ app                <- Entrypoint app
+├─ eda                <- Generated notebooks for exploratory data analysis
+└─ data               <- Used data
 ```
 
 ## Database
@@ -44,9 +45,15 @@ In a first approach, our ML models will be consumed through API Rest or through 
 2. Create a mysql container
 
     ```
-    $ docker-compose --file src/mysql_db/docker-compose.yml up  --build -d 
+    $ docker-compose --file src/mysql_db/docker-compose.yml up  --build -d
     ```
 
+3. Dump data to Database
+
+    ```
+    $ cd src/server
+    $ python populate_database.py
+    ```
 ## Server
 
 1. Run flask server application
