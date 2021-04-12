@@ -69,3 +69,4 @@ In a first approach, our ML models will be consumed through API Rest or through 
     $ export FLASK_APP=src/server/server.py
     $ flask run
     ```
+2. Postam collection with examples https://www.getpostman.com/collections/5d81d74ebf90f6a7649b
