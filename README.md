@@ -9,22 +9,6 @@
 	2. Prediction of a match result between two teams (the prediction model is up to you to create, the more interesting, the best)
 4. The program can be web facing (FLASK) or command line only
 
-
-## How to replicate the enviroment?
-
-- **Python Version:** Python 3.*
-
-- **Enviroment:**
-
-    Replicate the enviroment with `requirements.txt`
-    ```
-    # using pip
-    $ pip install -r requirements.txt
-
-    # using conda
-    $ conda create --name <env_name> --file requirements.txt
-    ```
-
 ## Project Skeleton
 
 In a first approach, our ML models will be consumed through API Rest or through CLI. Based on this idea, the file structure is as follows
@@ -38,6 +22,30 @@ In a first approach, our ML models will be consumed through API Rest or through 
 ├─ eda                <- Generated notebooks for exploratory data analysis
 └─ data               <- Used data
 ```
+
+## How to replicate the enviroment?
+
+- **Python Version:** Python 3.8.*
+- **Enviroment:**
+
+1. Replicate python enviroment with `requirements.txt`
+    ```
+    # using pip
+    $ pip install -r requirements.txt
+
+    # using conda
+    $ conda create --name <env_name> --file requirements.txt
+    ```
+2. Export enviroment variables
+	```
+    export MYSQL_USER=?
+	export MYSQL_PASSWORD=?
+	export MYSQL_ROOT_PASSWORD=?
+	export MYSQL_DATABASE=?
+	export MYSQL_PORT=?
+	export MYSQL_HOST=?
+    ```
+    NOTE: These variables are defined in `database.conf` file
 
 ## Database
 
