@@ -18,7 +18,7 @@ engine = db.get_engine(app=app)
 
 # LOAD PREDICTION MODEL
 
-MODEL_DIR = "./models/nba_sklearn_model.pkl"
+MODEL_DIR = "./models/nba_sklearn_model_extended.pkl"
 model_clf = joblib.load(MODEL_DIR)
 print(f" * Prediction Model: {type(model_clf)}")
 
@@ -124,9 +124,10 @@ def edit(entity, record_id):
 @app.route("/match", methods=["POST"])
 def match():
     data = request.get_json()
-    vector = get_vector_data(
+    df = get_vector_data(
         games=data, all_games=ALL_GAMES, all_rankings=ALL_RANKINGS, prediction=True
-    ).values
-    prediction = model_clf.predict(vector)
+    )
+    df = df.drop("GAME_ID", axis=1)
+    prediction = model_clf.predict(df.values)
     return json.dumps({"HOME_TEAM_WINS_PREDICTION": prediction.item()}), 200
 
