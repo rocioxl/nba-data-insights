@@ -1,5 +1,6 @@
 import json
-import  os
+import os
+import sys
 
 import pandas as pd
 import requests
@@ -106,4 +107,16 @@ def populate_database(dataset_dir="../../data/nba_dataset", limit=10000):
     )
 
 
-populate_database(dataset_dir="../../data/nba_dataset", limit=10000)
+if __name__ == "__main__":
+    dataset_dir = "../../data/nba_dataset"
+    limit = None
+
+    if len(sys.argv) > 1:
+        dataset_dir = sys.argv[1]
+    if len(sys.argv) > 2:
+        limit = int(sys.argv[2])
+
+    if dataset_dir=="--help" or dataset_dir=="-h":
+            print(f"USAGE: {sys.argv[0]} NBA_DATASET_DIR LIMIT")
+    else:
+        populate_database(dataset_dir=dataset_dir, limit=limit)
