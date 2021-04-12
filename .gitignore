@@ -133,5 +133,5 @@ data/
 models/
 .vscode/
 
-# ignore configuration sfiles
+# configuration files
 *.conf
