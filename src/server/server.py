@@ -1,14 +1,32 @@
 import json
 
+import joblib
+import pandas as pd
 from flask import request
+from sklearn.tree import DecisionTreeClassifier
 from sqlalchemy.sql import text
 
 from . import create_app
 from .database import repository
 from .database.models import *
+from .prediction_models.prepare_data import get_vector_data
+
+# INSTANCIATE FLASK APP
 
 app = create_app()
 engine = db.get_engine(app=app)
+
+# LOAD PREDICTION MODEL
+
+MODEL_DIR = "./models/nba_sklearn_model.pkl"
+model_clf = joblib.load(MODEL_DIR)
+print(f" * Prediction Model: {type(model_clf)}")
+
+ALL_GAMES = pd.read_csv("./data/model_dataset/formated_games.csv")
+ALL_RANKINGS = pd.read_csv("./data/model_dataset/formated_rankings.csv")
+print(f" * Loaded dataset (games and rankings)")
+
+# ENDPOINTS
 
 
 @app.route("/", methods=["GET"])
@@ -106,5 +124,9 @@ def edit(entity, record_id):
 @app.route("/match", methods=["POST"])
 def match():
     data = request.get_json()
-    return json.dumps("Pending"), 404
+    vector = get_vector_data(
+        games=data, all_games=ALL_GAMES, all_rankings=ALL_RANKINGS, prediction=True
+    ).values
+    prediction = model_clf.predict(vector)
+    return json.dumps({"HOME_TEAM_WINS_PREDICTION": prediction.item()}), 200
 
