@@ -5,9 +5,9 @@ import pandas as pd
 ranking_features = [
     "TEAM_ID",
     # TODO: REMOVE -----
-    "G",
-    "W",
-    "L",
+    # "G",
+    # "W",
+    # "L",
     # ------------------
     "W_PCT",
     "HOME_RECORD",
@@ -135,7 +135,6 @@ def get_historical_games_data(games, n, all_games):
 def get_vector_data(games, all_games, all_rankings, prediction=True):
     if not isinstance(games, pd.DataFrame):
         games = pd.DataFrame(games)
-    print(games)
 
     # Get ranking stats before game
     rank_stats = get_historical_rankings_data(games, all_rankings=all_rankings)
@@ -143,13 +142,12 @@ def get_vector_data(games, all_games, all_rankings, prediction=True):
     # Get stats before game 3 previous games
     game_stats_3g = get_historical_games_data(games, n=3, all_games=all_games)
 
-    # TODO: ADD -----
-    # # Get stats before game 20 previous games
-    # game_stats_20g = get_historical_games_data(games, n=20, all_games=all_games)
+    # Get stats before game 20 previous games
+    game_stats_20g = get_historical_games_data(games, n=20, all_games=all_games)
 
     formated_games = rank_stats.merge(game_stats_3g, on="GAME_ID", how="left")
-    # formated_games = formated_games.merge(game_stats_20g, on="GAME_ID")
-    # ---------------
+    formated_games = formated_games.merge(game_stats_20g, on="GAME_ID", how="left")
+
     if prediction:
         formated_games["SEASON"] = [x[:4] for x in games["GAME_DATE_EST"].values]
     else:
