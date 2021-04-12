@@ -15,4 +15,4 @@ drop-db:
 	docker volume rm mysql_db_my-db
 
 start-db:
-	docker-compose --file src/mysql_db/docker-compose.yml up  --build
+	docker-compose --file src/mysql_db/docker-compose.yml up  --build -d
