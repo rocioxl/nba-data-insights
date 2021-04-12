@@ -329,7 +329,7 @@ class GameDetail(db.Model):
 class Ranking(db.Model):
     __tablename__ = "ranking"
 
-    standingsdate = db.Column(db.DateTime)
+    standingsdate = db.Column(db.DateTime, primary_key=True)
     conference = db.Column(db.String(10))
     team = db.Column(db.String(100))
     g = db.Column(db.Integer)
