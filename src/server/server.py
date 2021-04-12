@@ -10,16 +10,6 @@ from .database.models import *
 app = create_app()
 engine = db.get_engine(app=app)
 
-ENTITY_MAPPER = {
-    "players": Player,
-    "teams": Team,
-    "games": Game,
-    "games_details": GameDetail,
-    "leagues": League,
-    "rankings": Ranking,
-    "players_teams": PlayersTeams,
-}
-
 
 @app.route("/", methods=["GET"])
 def index():

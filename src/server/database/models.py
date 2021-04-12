@@ -273,9 +273,9 @@ class GameDetail(db.Model):
 
     def to_json(self):
         return {
-            "game_id":self.game_id,
-            "team_id":self.team_id,
-            "player_id":self.player_id,
+            "game_id": self.game_id,
+            "team_id": self.team_id,
+            "player_id": self.player_id,
         }
 
     @staticmethod
@@ -386,3 +386,13 @@ class Ranking(db.Model):
             else None,
         }
 
+
+ENTITY_MAPPER = {
+    "players": Player,
+    "teams": Team,
+    "games": Game,
+    "games_details": GameDetail,
+    "leagues": League,
+    "rankings": Ranking,
+    "players_teams": PlayersTeams,
+}
