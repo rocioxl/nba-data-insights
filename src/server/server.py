@@ -102,3 +102,9 @@ def edit(entity, record_id):
     repository.edit(ENTITY_MAPPER[entity], id=record_id, **data)
     return json.dumps("Edited"), 200
 
+
+@app.route("/match", methods=["POST"])
+def match():
+    data = request.get_json()
+    return json.dumps("Pending"), 404
+
