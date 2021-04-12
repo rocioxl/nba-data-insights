@@ -83,6 +83,8 @@ In a first approach, our ML models will be consumed through API Rest or through 
         $  make run-server
     ```
 
+**NOTE**: The content of the folders `model` and `data`, and the file `database.config` are given by request. <rocio.x.linares95@gmail.com>.
+
 ## Prediction Models
 
 The goal of this model is predict if the home team of a game is going to win:
